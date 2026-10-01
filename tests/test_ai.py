@@ -117,7 +117,7 @@ class TestGenerateCoverLetter:
         tailor.generate_cover_letter(_JD, _RESUME)
 
         call_kwargs = mock_client.models.generate_content.call_args
-        assert call_kwargs.kwargs["model"] == "gemini-2.5-pro"
+        assert call_kwargs.kwargs["model"] == "gemini-3.1-pro-preview"
 
     def test_raises_on_empty_response(self) -> None:
         """An empty API response raises DocumentTailorError immediately."""
