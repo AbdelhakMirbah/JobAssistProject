@@ -37,7 +37,7 @@ logger = get_logger(__name__)
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
-_MODEL: Final[str] = "gemini-2.5-pro"
+_MODEL: Final[str] = "gemini-3.1-pro-preview"  # Successor to gemini-2.5-pro
 _MAX_RETRIES: Final[int] = 3
 _BASE_BACKOFF_S: Final[float] = 2.0   # Seconds before first retry
 _MAX_BACKOFF_S: Final[float] = 30.0   # Cap on wait time
@@ -90,7 +90,7 @@ class DocumentTailor:
     def __init__(
         self,
         api_key: str | None = None,
-        model: str = _MODEL,
+        model: str = _MODEL,  # override with e.g. "gemini-1.5-pro" if needed
         max_retries: int = _MAX_RETRIES,
     ) -> None:
         resolved_key = api_key or os.getenv("GEMINI_API_KEY")
