@@ -35,6 +35,18 @@ load_dotenv()  # Loads .env into os.environ (safe no-op if missing)
 
 logger = get_logger(__name__)
 
+# ── OmniRoute integration (optional — activated by USE_OMNIROUTE=true) ────────
+try:
+    from src.ai.omniroute_client import OmniRouteClient, OmniRouteError, get_omniroute_client
+    _OMNIROUTE_AVAILABLE = True
+except ImportError:
+    _OMNIROUTE_AVAILABLE = False
+    OmniRouteClient = None  # type: ignore[misc,assignment]
+    OmniRouteError = Exception  # type: ignore[misc,assignment]
+    def get_omniroute_client(): return None  # type: ignore[misc]
+
+
+
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 _MODEL: Final[str] = "gemini-3.1-pro-preview"  # Successor to gemini-2.5-pro
@@ -92,17 +104,40 @@ class DocumentTailor:
         api_key: str | None = None,
         model: str = _MODEL,  # override with e.g. "gemini-1.5-pro" if needed
         max_retries: int = _MAX_RETRIES,
+        omni_client: object | None = None,  # OmniRouteClient, injected or auto-detected
     ) -> None:
-        resolved_key = api_key or os.getenv("GEMINI_API_KEY")
-        if not resolved_key:
-            raise DocumentTailorError(
-                "GEMINI_API_KEY is not set. Add it to your .env file."
+        # ── OmniRoute integration (USE_OMNIROUTE=true) ────────────────────
+        self._omni: OmniRouteClient | None = (
+            omni_client  # type: ignore[assignment]
+            if omni_client is not None
+            else (get_omniroute_client() if _OMNIROUTE_AVAILABLE else None)
+        )
+        if self._omni is not None:
+            logger.info(
+                "DocumentTailor using OmniRoute backend (model=auto). "
+                "Gemini is the fallback."
             )
 
-        self._client = genai.Client(api_key=resolved_key)
+        # ── Gemini (primary or fallback) ──────────────────────────────────
+        resolved_key = api_key or os.getenv("GEMINI_API_KEY")
+        if not resolved_key and self._omni is None:
+            raise DocumentTailorError(
+                "No AI backend available. Either:\n"
+                "  • Set GEMINI_API_KEY in your .env  (direct Gemini access)\n"
+                "  • Set USE_OMNIROUTE=true and run: omniroute  (free gateway)"
+            )
+        if resolved_key:
+            self._client = genai.Client(api_key=resolved_key)
+        else:
+            self._client = None  # type: ignore[assignment]  # OmniRoute-only mode
+
         self._model = model
         self._max_retries = max_retries
-        logger.info("DocumentTailor initialised with model=%s", self._model)
+        logger.info(
+            "DocumentTailor initialised | gemini=%s | omniroute=%s",
+            self._model if resolved_key else "disabled",
+            "enabled" if self._omni else "disabled",
+        )
 
     # ── Public API ────────────────────────────────────────────────────────
 
@@ -246,7 +281,11 @@ Return ONLY the bullet points, each on its own line, starting with "• ".
 
     def _generate_with_retry(self, prompt: str) -> str:
         """
-        Call the Gemini API with exponential back-off retry on transient errors.
+        Call the AI backend with exponential back-off retry on transient errors.
+
+        Routing priority:
+          1. OmniRoute (if USE_OMNIROUTE=true and server is running)  — free, auto-fallback
+          2. Gemini (direct google-genai SDK)                         — requires API key + quota
 
         Parameters
         ----------
@@ -263,6 +302,28 @@ Return ONLY the bullet points, each on its own line, starting with "• ".
         DocumentTailorError
             After all retry attempts are exhausted.
         """
+        # ── Path 1: OmniRoute ─────────────────────────────────────────────
+        if self._omni is not None:
+            try:
+                text = self._omni.generate(prompt)
+                if not text:
+                    raise DocumentTailorError("OmniRoute returned an empty response.")
+                logger.debug("OmniRoute responded successfully")
+                return text.strip()
+            except DocumentTailorError:
+                raise
+            except OmniRouteError as exc:
+                logger.warning(
+                    "OmniRoute failed: %s — falling back to Gemini (if available)", exc
+                )
+                if self._client is None:
+                    raise DocumentTailorError(
+                        f"OmniRoute failed and no Gemini API key is configured. "
+                        f"Error: {exc}"
+                    ) from exc
+                # Fall through to Gemini below
+
+        # ── Path 2: Gemini direct ─────────────────────────────────────────
         last_exc: Exception | None = None
 
         for attempt in range(1, self._max_retries + 1):
