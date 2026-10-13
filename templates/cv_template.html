@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>{{FULL_NAME}} - CV</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 10mm 12mm 10mm 12mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #111827;
+      background-color: #ffffff;
+      font-size: 8.8pt;
+      line-height: 1.35;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      border-bottom: 1px solid #111827;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 18pt;
+      font-weight: 700;
+      color: #111827;
+      letter-spacing: -0.2px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .headline {
+      font-size: 10pt;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+
+    .contact-bar {
+      font-size: 8.2pt;
+      color: #4b5563;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .contact-bar span {
+      display: inline-block;
+    }
+
+    .contact-bar a {
+      color: #111827;
+      text-decoration: none;
+    }
+
+    .separator {
+      color: #9ca3af;
+      margin: 0 2px;
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 7px;
+    }
+
+    h2 {
+      font-size: 9.2pt;
+      font-weight: 700;
+      color: #111827;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #d1d5db;
+      padding-bottom: 1.5px;
+      margin-bottom: 4px;
+    }
+
+    /* Summary */
+    .summary-text {
+      color: #1f2937;
+      text-align: justify;
+      font-size: 8.4pt;
+      line-height: 1.32;
+    }
+
+    /* Skills */
+    .skills-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 8.3pt;
+    }
+
+    .skill-row {
+      display: flex;
+      line-height: 1.28;
+    }
+
+    .skill-label {
+      width: 135px;
+      font-weight: 600;
+      color: #111827;
+      flex-shrink: 0;
+    }
+
+    .skill-values {
+      color: #374151;
+    }
+
+    /* Entries */
+    .entry {
+      margin-bottom: 4.5px;
+      page-break-inside: avoid;
+    }
+
+    .entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 8.6pt;
+      line-height: 1.25;
+    }
+
+    .entry-title {
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .entry-company {
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .entry-location {
+      color: #6b7280;
+      font-size: 8pt;
+      font-weight: normal;
+    }
+
+    .entry-date {
+      font-size: 8pt;
+      font-weight: 500;
+      color: #4b5563;
+    }
+
+    .entry-bullets {
+      margin-left: 15px;
+      margin-top: 2px;
+    }
+
+    .entry-bullets li {
+      margin-bottom: 1px;
+      color: #374151;
+      font-size: 8.3pt;
+      line-height: 1.3;
+    }
+
+    /* Footer lines */
+    .footer-line {
+      font-size: 8.2pt;
+      color: #374151;
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+
+    .footer-label {
+      font-weight: 700;
+      color: #111827;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1>{{FULL_NAME}}</h1>
+      <div class="headline">{{TARGET_HEADLINE}}</div>
+      <div class="contact-bar">
+        <span>{{LOCATION}}</span>
+        <span class="separator">|</span>
+        <span>{{PHONE}}</span>
+        <span class="separator">|</span>
+        <span>{{EMAIL}}</span>
+        <span class="separator">|</span>
+        <span>{{LINKEDIN_DISPLAY}}</span>
+        <span class="separator">|</span>
+        <span>{{PORTFOLIO_DISPLAY}}</span>
+      </div>
+    </header>
+
+    <!-- Professional Summary -->
+    <section>
+      <h2>Profil</h2>
+      <p class="summary-text">{{TAILORED_SUMMARY}}</p>
+    </section>
+
+    <!-- Technical Skills -->
+    <section>
+      <h2>Compétences Techniques</h2>
+      <div class="skills-block">
+        {{SKILLS_ROWS}}
+      </div>
+    </section>
+
+    <!-- Work Experience -->
+    <section>
+      <h2>Expérience Professionnelle</h2>
+      {{EXPERIENCE_ENTRIES}}
+    </section>
+
+    <!-- Projects -->
+    <section>
+      <h2>Projets</h2>
+      {{PROJECTS_ENTRIES}}
+    </section>
+
+    <!-- Education -->
+    <section>
+      <h2>Formation</h2>
+      {{EDUCATION_ENTRIES}}
+    </section>
+
+    <!-- Certifications & Languages -->
+    <section>
+      <h2>Certifications & Langues</h2>
+      <div class="footer-line">
+        <span class="footer-label">Certifications :</span> {{CERTIFICATIONS_INLINE}}
+      </div>
+      <div class="footer-line">
+        <span class="footer-label">Langues :</span> {{LANGUAGES_INLINE}}
+      </div>
+    </section>
+  </div>
+</body>
+</html>

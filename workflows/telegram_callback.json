@@ -1,0 +1,118 @@
+{
+  "name": "Job Assistant - Telegram Action Callback",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "callback_query"
+        ]
+      },
+      "id": "node-telegram-trigger",
+      "name": "Telegram: Button Click Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $input.first().json.callback_query;\nconst data = query.data || '';\nconst [action, appId] = data.split(':');\n\nconst statusMap = {\n  APPLY: 'APPLIED',\n  SKIP: 'ARCHIVED',\n  EDIT: 'NEEDS_REVIEW'\n};\n\nconst newStatus = statusMap[action] || 'UPDATED';\nconst actionText = action === 'APPLY' ? '✅ Marqué comme Postulé' : '❌ Ignoré / Archivé';\n\nreturn [{\n  json: {\n    callback_id: query.id,\n    chat_id: query.message.chat.id,\n    message_id: query.message.message_id,\n    action: action,\n    app_id: appId,\n    new_status: newStatus,\n    action_text: actionText,\n    original_text: query.message.text || ''\n  }\n}];"
+      },
+      "id": "node-parse-callback",
+      "name": "Parse Button Action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "operation": "answerCallbackQuery",
+        "callbackQueryId": "={{ $json.callback_id }}",
+        "additionalFields": {
+          "text": "={{ $json.action_text }}"
+        }
+      },
+      "id": "node-answer-callback",
+      "name": "Acknowledge Button Click",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [700, 180]
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.message_id }}",
+        "text": "={{ $json.original_text }}\\n\\n📌 *Statut :* {{ $json.action_text }} (" + new Date().toLocaleTimeString() + ")",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "node-update-message",
+      "name": "Update Telegram Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [700, 340]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $env.FIREBASE_DATABASE_URL }}/applications/{{ $json.app_id }}.json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"status\": \"{{ $json.new_status }}\",\n  \"updated_at\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": {}
+      },
+      "id": "node-firebase-update",
+      "name": "Update Status in Firebase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 500]
+    }
+  ],
+  "connections": {
+    "Telegram: Button Click Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Button Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Button Action": {
+      "main": [
+        [
+          {
+            "node": "Acknowledge Button Click",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status in Firebase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

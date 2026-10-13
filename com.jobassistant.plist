@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  macOS LaunchAgent — runs Job Assistant every 3 hours automatically.
+
+  INSTALL:
+    chmod +x "/Users/abdelhakmirbah/Desktop/CVs/jobAssistant N8n/run_job_assistant.sh"
+    cp "/Users/abdelhakmirbah/Desktop/CVs/jobAssistant N8n/com.jobassistant.plist" ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.jobassistant.plist
+
+  UNINSTALL:
+    launchctl unload ~/Library/LaunchAgents/com.jobassistant.plist
+    rm ~/Library/LaunchAgents/com.jobassistant.plist
+
+  CHECK STATUS:
+    launchctl list | grep jobassistant
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.jobassistant</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/abdelhakmirbah/Desktop/CVs/jobAssistant N8n/run_job_assistant.sh</string>
+    <string>3</string>
+    <string>60</string>
+  </array>
+
+  <!-- Run every 3 hours (10800 seconds) -->
+  <key>StartInterval</key>
+  <integer>10800</integer>
+
+  <!-- Also run once immediately on load -->
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/abdelhakmirbah/Desktop/CVs/jobAssistant N8n/logs/launchd_stdout.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/abdelhakmirbah/Desktop/CVs/jobAssistant N8n/logs/launchd_stderr.log</string>
+
+  <!-- Keep environment for node/npm resolution -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+  </dict>
+</dict>
+</plist>

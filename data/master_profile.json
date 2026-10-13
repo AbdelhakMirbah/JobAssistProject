@@ -1,0 +1,268 @@
+{
+  "personal": {
+    "full_name": "Abdelhak Mirbah",
+    "headline": "Software Engineer | Data & Cloud Engineer",
+    "email": "Abdelmirbah@gmail.com",
+    "phone": "+212 607 715 535",
+    "location": "Casablanca, Morocco",
+    "linkedin": "https://linkedin.com/in/abdelhak-mirbah",
+    "github": "https://github.com/abdelhakmirbah",
+    "portfolio": "https://abdelhakmirbah.github.io/Portfolio",
+    "languages": [
+      { "name": "Arabe / Arabic", "level": "Langue maternelle / Native" },
+      { "name": "Français / French", "level": "Courant, professionnel / Fluent, professional" },
+      { "name": "Anglais / English", "level": "Intermédiaire, technique / Intermediate, technical" }
+    ]
+  },
+  "summary": {
+    "fr": "Ingénieur d'État en Informatique et Réseaux (Génie Logiciel) de l'EMSI, orienté Data Engineering et Développement Logiciel. Passionné par la conception de solutions informatiques de bout en bout : pipelines de données (ETL Pentaho, Kafka), architectures microservices (Spring Boot, Flask), cloud & conteneurs (Docker, OCI DevOps Certified) et reporting décisionnel (Power BI, SQL). Expérience prouvée à travers 3 stages (dont PFE chez LEONI WS), des projets IA concrets et du freelance.",
+    "en": "State Engineering Graduate in Computer Science & Networks (Software Engineering) from EMSI, focused on Data Engineering and Software Development. Passionate about engineering end-to-end IT solutions: robust data pipelines (ETL Pentaho, Apache Kafka), microservices architectures (Spring Boot, Flask, Node.js), cloud & containers (Docker, OCI DevOps Certified), and BI reporting (Power BI, SQL). Proven experience across 3 internships (including final-year project at LEONI WS), impactful AI projects, and freelance work."
+  },
+  "skills": {
+    "data_engineering": [
+      "ETL (Pentaho Data Integration)",
+      "Data Pipelines",
+      "Data Warehouse",
+      "Apache Kafka",
+      "Batch & Stream Automation",
+      "Modélisation dimensionnelle & relationnelle"
+    ],
+    "languages": [
+      "Python",
+      "SQL",
+      "Java",
+      "JavaScript",
+      "TypeScript",
+      "PHP",
+      "Dart",
+      "C++"
+    ],
+    "cloud_and_devops": [
+      "Docker",
+      "Kubernetes & OpenShift (Basics)",
+      "Oracle Cloud Infrastructure (OCI Certified)",
+      "Azure Virtual Networks",
+      "CI/CD Pipelines",
+      "Linux / Bash"
+    ],
+    "frameworks_and_backend": [
+      "Spring Boot",
+      "Spring Cloud Microservices",
+      "Flask",
+      "React",
+      "Flutter",
+      "Bootstrap",
+      "HTML5 / CSS3"
+    ],
+    "databases": [
+      "PostgreSQL",
+      "MySQL",
+      "Oracle Database",
+      "SQLite",
+      "Firebase / Firestore"
+    ],
+    "ai_and_analytics": [
+      "ONNX Runtime",
+      "TensorFlow Lite",
+      "Pandas",
+      "Power BI (KPIs & Dashboards)",
+      "Prompt Engineering & LLMs"
+    ],
+    "tools_and_methods": [
+      "Git / GitHub / GitLab",
+      "Jira",
+      "Agile Scrum",
+      "UML Modeling"
+    ]
+  },
+  "experience": [
+    {
+      "title": "Stagiaire Ingénieur Data (Stage PFE) / Data Engineering Intern",
+      "company": "LEONI WS",
+      "location": "Berrechid, Maroc",
+      "start_date": "Mars 2026",
+      "end_date": "Sept. 2026",
+      "current": false,
+      "bullets": [
+        "Conçu et développé de bout en bout une application automatisée de consolidation financière et de reporting décisionnel.",
+        "Défini l'architecture logicielle globale et modélisé la base de données relationnelle.",
+        "Mis en place des pipelines de traitement automatisé des données et conçu des tableaux de bord interactifs pour le suivi des KPIs financiers."
+      ],
+      "bullets_en": [
+        "Designed and built an end-to-end automated financial consolidation and decision-making reporting application.",
+        "Architected the system software solution and modeled the relational database.",
+        "Automated data ingestion/processing pipelines and created interactive dashboards for financial KPIs tracking."
+      ]
+    },
+    {
+      "title": "Stagiaire Business Intelligence / Business Intelligence Intern",
+      "company": "Daman Cash (Groupe BMCE)",
+      "location": "Casablanca, Maroc",
+      "start_date": "Juil. 2025",
+      "end_date": "Août 2025",
+      "current": false,
+      "bullets": [
+        "Développé et orchestré des flux ETL avec Pentaho Data Integration pour alimenter un Data Warehouse centralisé.",
+        "Intégré des données financières multi-sources hétérogènes (ADRIA, HPS, MySQL, Oracle) et programmé des batchs automatisés.",
+        "Conçu et déployé des tableaux de bord Power BI dynamiques pour l'analyse des KPIs d'activité."
+      ],
+      "bullets_en": [
+        "Developed and orchestrated ETL workflows with Pentaho Data Integration to feed a central Data Warehouse.",
+        "Integrated heterogeneous multi-source financial data (ADRIA, HPS, MySQL, Oracle) and scheduled automated batch jobs.",
+        "Designed and deployed dynamic Power BI dashboards for operational and business KPI analytics."
+      ]
+    },
+    {
+      "title": "Stagiaire Développeur Web / Web Developer Intern",
+      "company": "Kazinov (Schneider Electric Partner)",
+      "location": "Maroc",
+      "start_date": "Août 2024",
+      "end_date": "Sept. 2024",
+      "current": false,
+      "bullets": [
+        "Conçu et développé une application web de suivi des tâches et gestion de projets (PHP, Bootstrap).",
+        "Modélisé et administré la base de données MySQL et optimisé les requêtes SQL."
+      ],
+      "bullets_en": [
+        "Designed and developed a web application for task tracking and project management using PHP and Bootstrap.",
+        "Modeled and managed MySQL database schemas with optimized query performance."
+      ]
+    },
+    {
+      "title": "Freelance Technical Consultant / Consultant Technique",
+      "company": "Innolia",
+      "location": "Casablanca, Maroc",
+      "start_date": "Juin 2022",
+      "end_date": "Août 2022",
+      "current": false,
+      "bullets": [
+        "Fourni du conseil technique et développé des solutions digitales modulaires et évolutives pour des clients tiers."
+      ],
+      "bullets_en": [
+        "Provided technical consulting and built scalable digital solutions tailored to client specifications."
+      ]
+    },
+    {
+      "title": "Fondateur & E-commerce Manager / Founder",
+      "company": "Elxir Watches",
+      "location": "Maroc",
+      "start_date": "2022",
+      "end_date": "2025",
+      "current": false,
+      "bullets": [
+        "Fondé et géré une boutique e-commerce de montres (gestion des opérations, plateforme web et marketing digital)."
+      ],
+      "bullets_en": [
+        "Founded and operated an e-commerce watch business, managing digital marketing, web operations, and sourcing."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "AI-Powered Fraud Detection",
+      "date": "Déc. 2025",
+      "tech_stack": ["Spring Boot", "Apache Kafka", "ONNX", "Java"],
+      "description": "Pipeline temps réel de streaming et détection de fraudes bancaires couplant Apache Kafka et un modèle d'IA (ONNX) pour une inférence ultra-faible latence.",
+      "description_en": "Real-time stream processing and fraud detection pipeline integrating Apache Kafka and an ONNX AI model for ultra-low latency inference."
+    },
+    {
+      "name": "Job Assist AI",
+      "date": "2025 - 2026",
+      "tech_stack": ["Python", "n8n", "LLM APIs", "SQLite / Firebase", "Puppeteer"],
+      "description": "Assistant automatisé de candidature personnalisant les CVs et lettres de motivation selon l'offre et générant les documents ATS en temps réel.",
+      "description_en": "Automated job application assistant tailoring resumes and cover letters to job specs with real-time ATS document generation."
+    },
+    {
+      "name": "Smart Irrigation IoT & AI",
+      "date": "Juin 2024",
+      "tech_stack": ["Android", "Java", "IoT Data", "IA adaptative"],
+      "description": "Application mobile Android de recommandations d'irrigation intelligente basée sur des flux météo temps réel et un modèle d'IA adaptatif.",
+      "description_en": "Android app providing real-time smart irrigation recommendations combining live weather feeds and an adaptive soil/crop AI model."
+    },
+    {
+      "name": "Flutter Deep Learning App",
+      "date": "2024",
+      "tech_stack": ["Flutter", "Dart", "TensorFlow Lite"],
+      "description": "Application mobile cross-platform embarquant un modèle Deep Learning pour inférence on-device temps réel sans connexion cloud.",
+      "description_en": "Cross-platform mobile app embedding a TensorFlow Lite deep learning model for real-time, on-device offline inference."
+    }
+  ],
+  "education": [
+    {
+      "degree": "Diplôme d'Ingénieur d'État en Ingénierie Informatique et Réseaux (Génie Logiciel)",
+      "institution": "École Marocaine des Sciences de l'Ingénieur (EMSI)",
+      "location": "Casablanca, Maroc",
+      "start_date": "2023",
+      "end_date": "2026",
+      "highlights": "Génie Logiciel, Systèmes Distribués, Cloud Computing, Data Engineering & Architecture Logicielle"
+    },
+    {
+      "degree": "Diplôme de Technicien Spécialisé en Développement Informatique",
+      "institution": "ISTA NTIC SIDI MAAROUF",
+      "location": "Casablanca, Maroc",
+      "start_date": "2019",
+      "end_date": "2021",
+      "highlights": "Bases de données relationnelles, Conception orientée objet, Développement Web & Applicatif"
+    },
+    {
+      "degree": "Baccalauréat en Sciences Physiques",
+      "institution": "Lycée Jamal Eddine Al Mahiaoui",
+      "location": "Casablanca, Maroc",
+      "start_date": "2018",
+      "end_date": "2019",
+      "highlights": "Mention Bien"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Oracle Cloud Infrastructure 2025 Certified DevOps Professional",
+      "issuer": "Oracle",
+      "year": "2026"
+    },
+    {
+      "name": "Spring, JPA, Testing, and Legacy Microservices",
+      "issuer": "Packt",
+      "year": "Jan 2026"
+    },
+    {
+      "name": "Advanced Spring Cloud Microservices & Deployment with Docker",
+      "issuer": "Packt",
+      "year": "Jan 2026"
+    },
+    {
+      "name": "Machine Learning with Python",
+      "issuer": "IBM",
+      "year": "Dec 2025"
+    },
+    {
+      "name": "Intro to Containers w/ Docker, Kubernetes & OpenShift",
+      "issuer": "IBM",
+      "year": "Jun 2025"
+    },
+    {
+      "name": "Virtual Networks in Azure",
+      "issuer": "Whizlabs",
+      "year": "Jun 2025"
+    },
+    {
+      "name": "Introduction to Java and Object-Oriented Programming",
+      "issuer": "Penn Engineering",
+      "year": "Jan 2025"
+    },
+    {
+      "name": "React Basics",
+      "issuer": "Meta",
+      "year": "Jan 2025"
+    },
+    {
+      "name": "Programming for Everybody (Python)",
+      "issuer": "University of Michigan",
+      "year": "May 2024"
+    },
+    {
+      "name": "The Unix Workbench",
+      "issuer": "Johns Hopkins University",
+      "year": "May 2024"
+    }
+  ]
+}

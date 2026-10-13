@@ -1,0 +1,291 @@
+{
+  "name": "Job Assistant - AI CV & Cover Letter Tailoring",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "job-apply",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook",
+      "name": "Webhook: Receive Job Offer",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst path = require('path');\n\nconst body = $input.first().json.body || $input.first().json;\n\n// Load master profile\nlet profile;\ntry {\n  const profilePath = '/data/shared/master_profile.json';\n  if (fs.existsSync(profilePath)) {\n    profile = JSON.parse(fs.readFileSync(profilePath, 'utf8'));\n  } else {\n    profile = require('/Users/abdelhakmirbah/Desktop/CVs/jobAssistant N8n/data/master_profile.json');\n  }\n} catch (e) {\n  throw new Error('Could not load master profile: ' + e.message);\n}\n\nreturn [{\n  json: {\n    job: {\n      job_title: body.job_title || 'Software Engineer',\n      company_name: body.company_name || 'Hiring Company',\n      job_url: body.job_url || '',\n      company_location: body.company_location || 'Paris, France',\n      job_description: body.job_description || '',\n      contact_email: body.contact_email || ''\n    },\n    profile: profile\n  }\n}];"
+      },
+      "id": "node-prepare-context",
+      "name": "Load Profile & Prepare Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={{ $env.GEMINI_API_KEY }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [{\n      \"text\": `You are an elite ATS career coach specializing in tech recruitment.\nAnalyze the following Job Posting and Candidate Master Profile.\n\nCRITICAL 1-PAGE RULE:\nThe candidate is a Junior Software Engineer / Data Engineer.\nThe resulting CV must STRICTLY fit on a SINGLE A4 page.\n1. Summary: 2 to 3 concise, punchy sentences tailored to this specific job.\n2. Select at most 3 relevant work experiences with 2-3 crisp bullet points each (focus on measurable actions, keywords, and technologies).\n3. Select at most 2 relevant projects.\n4. Write a compelling, customized Cover Letter (Lettre de Motivation) matching the language of the job (French if French, English if English). 3 short paragraphs.\n5. Output STRICTLY a JSON object matching the schema.\n\nJOB POSTING:\nTitle: ${$json.job.job_title}\nCompany: ${$json.job.company_name}\nLocation: ${$json.job.company_location}\nDescription:\n${$json.job.job_description}\n\nCANDIDATE PROFILE:\n${JSON.stringify($json.profile, null, 2)}\n\nSCHEMA REQUIREMENTS:\n{\n  \"fit_score\": 88,\n  \"match_summary\": \"Key alignment rationale in 2 sentences\",\n  \"matched_keywords\": [\"Python\", \"Kafka\", \"SQL\"],\n  \"missing_keywords\": [\"Kubernetes\"],\n  \"target_headline\": \"Junior Data Engineer | Software Engineer\",\n  \"tailored_summary\": \"Punchy 2-3 sentence professional summary tailored to role\",\n  \"tailored_experience\": [\n    {\n      \"title\": \"Role title\",\n      \"company\": \"Company name\",\n      \"bullets\": [\"Concise bullet 1 with tech and metrics\"]\n    }\n  ],\n  \"cover_letter\": {\n    \"salutation\": \"Madame, Monsieur,\",\n    \"paragraphs\": [\n      \"Paragraph 1: Motivation for company and role.\",\n      \"Paragraph 2: Highlight key internship / project achievements directly solving their needs.\",\n      \"Paragraph 3: Eagerness to collaborate and contribute value.\"\n    ],\n    \"complimentary_close\": \"Je reste à votre entière disposition pour un entretien et vous prie d'agréer mes salutations distinguées.\"\n  }\n}`\n    }]\n  }],\n  \"generationConfig\": {\n    \"responseMimeType\": \"application/json\",\n    \"temperature\": 0.2\n  }\n}",
+        "options": {}
+      },
+      "id": "node-gemini-tailoring",
+      "name": "Gemini AI: Tailor CV & Letter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst path = require('path');\n\nconst rawAi = $input.first().json;\nconst candidateText = rawAi.candidates?.[0]?.content?.parts?.[0]?.text;\nif (!candidateText) {\n  throw new Error('Gemini did not return candidates: ' + JSON.stringify(rawAi));\n}\n\nconst aiData = JSON.parse(candidateText);\nconst prepData = $('Load Profile & Prepare Input').first().json;\nconst job = prepData.job;\nconst profile = prepData.profile;\n\n// Generate Application Document ID\nconst appId = `${job.company_name.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${Date.now()}`;\n\n// Hydrate CV HTML (1-PAGE STRICT)\nconst p = profile.personal || {};\nconst summary = aiData.tailored_summary || (typeof profile.summary === 'object' ? profile.summary.fr : profile.summary) || '';\nconst headline = aiData.target_headline || p.headline || 'Junior Data Engineer | Software Engineer';\n\n// Skills Rows (Compact)\nlet skillsHtml = '';\nconst categoryLabels = {\n  data_engineering: 'Data Engineering',\n  languages: 'Langages',\n  cloud_and_devops: 'Cloud & DevOps',\n  frameworks_and_backend: 'Frameworks & Web',\n  databases: 'Bases de données',\n  ai_and_analytics: 'Analytics & IA',\n  tools_and_methods: 'Outils & Méthodes'\n};\nfor (const [key, items] of Object.entries(profile.skills || {})) {\n  if (Array.isArray(items) && items.length > 0) {\n    const label = categoryLabels[key] || key.replace(/_/g, ' ');\n    skillsHtml += `<div class=\"skill-row\"><span class=\"skill-label\">${label} :</span><span class=\"skill-values\">${items.join(', ')}</span></div>`;\n  }\n}\n\n// Experiences (Top 3)\nconst experiences = (profile.experience || []).slice(0, 3);\nlet expHtml = '';\nfor (let i = 0; i < experiences.length; i++) {\n  const exp = experiences[i];\n  const aiExp = (aiData.tailored_experience || []).find(e => e.company === exp.company) || {};\n  const bullets = (aiExp.bullets || exp.bullets || []).slice(0, 3);\n  const bulletsHtml = bullets.map(b => `<li>${b}</li>`).join('\\n');\n  expHtml += `\n    <div class=\"entry\">\n      <div class=\"entry-header\">\n        <div>\n          <span class=\"entry-title\">${exp.title.split('/')[0].trim()}</span> | \n          <span class=\"entry-company\">${exp.company}</span>\n          <span style=\"color: #64748b; font-size: 7.8pt;\">(${exp.location || ''})</span>\n        </div>\n        <span class=\"entry-date\">${exp.start_date.split('/')[0].trim()} – ${exp.end_date.split('/')[0].trim()}</span>\n      </div>\n      <ul class=\"entry-bullets\">${bulletsHtml}</ul>\n    </div>`;\n}\n\n// Projects (Top 2)\nlet projHtml = '';\nconst projects = (profile.projects || []).slice(0, 2);\nfor (const proj of projects) {\n  const tech = (proj.tech_stack || []).join(', ');\n  projHtml += `\n    <div class=\"entry\">\n      <div class=\"entry-header\">\n        <div>\n          <span class=\"entry-title\">${proj.name}</span>\n          <span style=\"color: #64748b; font-size: 7.8pt;\">| ${tech}</span>\n        </div>\n        <span class=\"entry-date\">${(proj.date || '').split('/')[0].trim()}</span>\n      </div>\n      <ul class=\"entry-bullets\">\n        <li>${proj.description || ''}</li>\n      </ul>\n    </div>`;\n}\n\n// Education (EMSI & ISTA NTIC)\nlet eduHtml = '';\nconst education = (profile.education || []).slice(0, 2);\nfor (const edu of education) {\n  const degreeShort = edu.degree.split('/')[0].trim();\n  eduHtml += `\n    <div class=\"entry\">\n      <div class=\"entry-header\">\n        <div>\n          <span class=\"entry-title\">${degreeShort}</span> | \n          <span class=\"entry-company\">${edu.institution}</span>\n        </div>\n        <span class=\"entry-date\">${edu.start_date} – ${edu.end_date}</span>\n      </div>\n    </div>`;\n}\n\n// Inline Certifications & Languages\nconst certsList = (profile.certifications || []).map(c => typeof c === 'string' ? c : `${c.name} (${c.issuer})`);\nconst certsInline = certsList.slice(0, 5).join(' • ');\nconst langsInline = (profile.personal?.languages || []).map(l => `${l.name} (${l.level.split('/')[0].trim()})`).join(' • ');\n\n// Load templates\nlet cvTplPath = '/data/templates/cv_template.html';\nlet letterTplPath = '/data/templates/cover_letter_template.html';\nif (!fs.existsSync(cvTplPath)) {\n  cvTplPath = '/Users/abdelhakmirbah/Desktop/CVs/jobAssistant N8n/templates/cv_template.html';\n  letterTplPath = '/Users/abdelhakmirbah/Desktop/CVs/jobAssistant N8n/templates/cover_letter_template.html';\n}\n\nlet cvHtml = fs.readFileSync(cvTplPath, 'utf8')\n  .replace(/{{FULL_NAME}}/g, p.full_name || '')\n  .replace(/{{TARGET_HEADLINE}}/g, headline)\n  .replace(/{{EMAIL}}/g, p.email || '')\n  .replace(/{{PHONE}}/g, p.phone || '')\n  .replace(/{{LOCATION}}/g, p.location || '')\n  .replace(/{{LINKEDIN_DISPLAY}}/g, (p.linkedin || '').replace('https://', ''))\n  .replace(/{{PORTFOLIO_DISPLAY}}/g, (p.portfolio || '').replace('https://', ''))\n  .replace(/{{TAILORED_SUMMARY}}/g, summary)\n  .replace(/{{SKILLS_ROWS}}/g, skillsHtml)\n  .replace(/{{EXPERIENCE_ENTRIES}}/g, expHtml)\n  .replace(/{{PROJECTS_ENTRIES}}/g, projHtml)\n  .replace(/{{EDUCATION_ENTRIES}}/g, eduHtml)\n  .replace(/{{CERTIFICATIONS_INLINE}}/g, certsInline)\n  .replace(/{{LANGUAGES_INLINE}}/g, langsInline);\n\n// Letter paragraphs\nconst letterParagraphs = (aiData.cover_letter?.paragraphs || []).map(p => `<p>${p}</p>`).join('\\n');\nconst todayStr = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });\n\nlet letterHtml = fs.readFileSync(letterTplPath, 'utf8')\n  .replace(/{{FULL_NAME}}/g, p.full_name || '')\n  .replace(/{{TARGET_HEADLINE}}/g, headline)\n  .replace(/{{EMAIL}}/g, p.email || '')\n  .replace(/{{PHONE}}/g, p.phone || '')\n  .replace(/{{LOCATION}}/g, p.location || '')\n  .replace(/{{LINKEDIN_DISPLAY}}/g, (p.linkedin || '').replace('https://', ''))\n  .replace(/{{COMPANY_NAME}}/g, job.company_name)\n  .replace(/{{COMPANY_LOCATION}}/g, job.company_location)\n  .replace(/{{JOB_TITLE}}/g, job.job_title)\n  .replace(/{{TODAY_DATE}}/g, todayStr)\n  .replace(/{{SALUTATION}}/g, aiData.cover_letter?.salutation || 'Madame, Monsieur,')\n  .replace(/{{COVER_LETTER_PARAGRAPHS}}/g, letterParagraphs)\n  .replace(/{{COMPLIMENTARY_CLOSE}}/g, aiData.cover_letter?.complimentary_close || 'Cordialement.');\n\nreturn [{\n  json: {\n    app_id: appId,\n    job: job,\n    ai_data: aiData,\n    cv_html: cvHtml,\n    letter_html: letterHtml,\n    created_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-build-documents",
+      "name": "Build HTML Documents",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://gotenberg:3000/forms/chromium/convert/html",
+        "sendBinaryData": false,
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "index.html",
+              "value": "={{ $json.cv_html }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "node-render-cv-pdf",
+      "name": "Render CV PDF (Gotenberg)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://gotenberg:3000/forms/chromium/convert/html",
+        "sendBinaryData": false,
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "index.html",
+              "value": "={{ $('Build HTML Documents').item.json.letter_html }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "node-render-letter-pdf",
+      "name": "Render Letter PDF (Gotenberg)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, 400]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "=🎯 *New Job Offer Tailored!*\\n\\n🏢 *Company:* {{ $('Build HTML Documents').item.json.job.company_name }}\\n💼 *Role:* {{ $('Build HTML Documents').item.json.job.job_title }}\\n📊 *Fit Score:* *{{ $('Build HTML Documents').item.json.ai_data.fit_score }}%*\\n\\n💡 *Summary:* {{ $('Build HTML Documents').item.json.ai_data.match_summary }}\\n\\n✅ *Matched Keywords:* {{ $('Build HTML Documents').item.json.ai_data.matched_keywords.join(', ') }}\\n⚠️ *Missing:* {{ $('Build HTML Documents').item.json.ai_data.missing_keywords.join(', ') }}\\n\\n🔗 *Job Link:* {{ $('Build HTML Documents').item.json.job.job_url }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "reply_markup": "inline_keyboard",
+          "inline_keyboard": {
+            "rows": [
+              {
+                "row": [
+                  {
+                    "text": "✅ Mark as Applied",
+                    "additionalFields": {
+                      "callback_data": "=APPLY:{{ $('Build HTML Documents').item.json.app_id }}"
+                    }
+                  },
+                  {
+                    "text": "❌ Skip / Archive",
+                    "additionalFields": {
+                      "callback_data": "=SKIP:{{ $('Build HTML Documents').item.json.app_id }}"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "id": "node-telegram-alert",
+      "name": "Send Telegram Push & Buttons",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1420, 300]
+    },
+    {
+      "parameters": {
+        "operation": "sendDocument",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "caption": "=📄 Tailored CV for {{ $('Build HTML Documents').item.json.job.company_name }}"
+        }
+      },
+      "id": "node-telegram-send-cv",
+      "name": "Send CV Document to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1640, 200]
+    },
+    {
+      "parameters": {
+        "operation": "sendDocument",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "caption": "=✉️ Tailored Cover Letter for {{ $('Build HTML Documents').item.json.job.company_name }}"
+        }
+      },
+      "id": "node-telegram-send-letter",
+      "name": "Send Letter Document to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1640, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\",\n  \"app_id\": $('Build HTML Documents').item.json.app_id,\n  \"fit_score\": $('Build HTML Documents').item.json.ai_data.fit_score,\n  \"company\": $('Build HTML Documents').item.json.job.company_name,\n  \"role\": $('Build HTML Documents').item.json.job.job_title,\n  \"message\": \"Application tailored and sent to Telegram for review!\"\n}",
+        "options": {}
+      },
+      "id": "node-webhook-response",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1880, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Receive Job Offer": {
+      "main": [
+        [
+          {
+            "node": "Load Profile & Prepare Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Profile & Prepare Input": {
+      "main": [
+        [
+          {
+            "node": "Gemini AI: Tailor CV & Letter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini AI: Tailor CV & Letter": {
+      "main": [
+        [
+          {
+            "node": "Build HTML Documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build HTML Documents": {
+      "main": [
+        [
+          {
+            "node": "Render CV PDF (Gotenberg)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Render Letter PDF (Gotenberg)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Telegram Push & Buttons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render CV PDF (Gotenberg)": {
+      "main": [
+        [
+          {
+            "node": "Send CV Document to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Letter PDF (Gotenberg)": {
+      "main": [
+        [
+          {
+            "node": "Send Letter Document to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Push & Buttons": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

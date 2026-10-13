@@ -1,0 +1,21 @@
+{
+  "name": "job-assistant-n8n",
+  "version": "1.1.0",
+  "description": "AI Job Assistant — Gemini + Firebase + Telegram. Scrapes jobs, tailors CV & cover letter, sends PDFs.",
+  "type": "module",
+  "scripts": {
+    "scrape-jobs": "node scrapers/multi_job_scraper.js",
+    "scrape-jobs:5": "node scrapers/multi_job_scraper.js 5 60",
+    "generate-preview": "node scripts/generate_preview.js",
+    "test-gemini": "node scripts/test_gemini.js",
+    "test-ollama": "node scripts/test_ollama.js",
+    "test-firebase": "node scripts/test_firebase.js",
+    "get-chat-id": "node scripts/get_chat_id.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "firebase-admin": "^13.1.0",
+    "puppeteer": "^24.4.0",
+    "ts-jobspy": "^3.0.1"
+  }
+}

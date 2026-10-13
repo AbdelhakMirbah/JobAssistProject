@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Assistant - 1-Click Bookmarklet</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 36px;
+      max-width: 540px;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    }
+    h1 {
+      font-size: 24px;
+      color: #38bdf8;
+      margin-top: 0;
+    }
+    p {
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+    .draggable-button {
+      display: inline-block;
+      margin: 24px 0;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: grab;
+      border: 2px dashed #60a5fa;
+      transition: transform 0.15s ease;
+    }
+    .draggable-button:hover {
+      transform: scale(1.04);
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    }
+    .steps {
+      text-align: left;
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-top: 20px;
+    }
+    .steps ol {
+      margin: 0;
+      padding-left: 20px;
+      color: #cbd5e1;
+    }
+    .steps li {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>⚡ Job Assistant Bookmarklet</h1>
+    <p>Capture any job offer from LinkedIn, Welcome to the Jungle, or Indeed in 1 click and auto-tailor your CV & Cover Letter.</p>
+
+    <!-- Draggable Link -->
+    <a class="draggable-button" href="javascript:(function(){const existingModal=document.getElementById('job-assistant-modal');if(existingModal)existingModal.remove();const selectedText=window.getSelection().toString().trim();const pageTitle=document.title||'';const pageUrl=window.location.href;let detectedTitle='';let detectedCompany='';const h1=document.querySelector('h1');if(h1)detectedTitle=h1.innerText.trim();const companyEl=document.querySelector('.job-details-jobs-unified-top-card__company-name,[data-company-name=%22true%22],.company-name,header%20[class*=%22company%22]');if(companyEl)detectedCompany=companyEl.innerText.trim();const overlay=document.createElement('div');overlay.id='job-assistant-modal';overlay.style.cssText='position:fixed;top:20px;right:20px;width:380px;background:#0f172a;color:#f8fafc;border:1px solid #334155;border-radius:12px;padding:20px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);z-index:99999999;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;';overlay.innerHTML=`<div style=%22display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;%22><h3 style=%22margin:0;font-size:15px;color:#38bdf8;%22>⚡ Job Assistant</h3><button id=%22ja-close%22 style=%22background:none;border:none;color:#94a3b8;font-size:18px;cursor:pointer;%22>&times;</button></div><label style=%22display:block;margin-bottom:4px;color:#cbd5e1;%22>Job Title</label><input id=%22ja-title%22 value=%22${detectedTitle.replace(/"/g,'&quot;')}%22 style=%22width:100%;box-sizing:border-box;padding:8px;background:#1e293b;border:1px solid #475569;border-radius:6px;color:#fff;margin-bottom:10px;%22 /><label style=%22display:block;margin-bottom:4px;color:#cbd5e1;%22>Company</label><input id=%22ja-company%22 value=%22${detectedCompany.replace(/"/g,'&quot;')}%22 style=%22width:100%;box-sizing:border-box;padding:8px;background:#1e293b;border:1px solid #475569;border-radius:6px;color:#fff;margin-bottom:10px;%22 /><label style=%22display:block;margin-bottom:4px;color:#cbd5e1;%22>Description</label><textarea id=%22ja-desc%22 rows=%224%22 style=%22width:100%;box-sizing:border-box;padding:8px;background:#1e293b;border:1px solid #475569;border-radius:6px;color:#fff;margin-bottom:14px;font-size:11px;%22>${(selectedText||document.body.innerText.substring(0,3000)).replace(/</g,'&lt;')}</textarea><button id=%22ja-submit%22 style=%22width:100%;padding:10px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;%22>🚀 Tailor & Send to Telegram</button><div id=%22ja-status%22 style=%22margin-top:10px;text-align:center;font-size:12px;color:#94a3b8;%22></div>`;document.body.appendChild(overlay);document.getElementById('ja-close').onclick=()=>overlay.remove();document.getElementById('ja-submit').onclick=async()=>{const btn=document.getElementById('ja-submit');const status=document.getElementById('ja-status');btn.disabled=true;btn.innerText='⏳ Processing...';status.innerText='Sending to local n8n...';try{const res=await fetch('http://localhost:5678/webhook/job-apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({job_title:document.getElementById('ja-title').value,company_name:document.getElementById('ja-company').value,company_location:'Paris, France',job_description:document.getElementById('ja-desc').value,job_url:pageUrl})});if(res.ok){btn.style.background='#16a34a';btn.innerText='✅ Sent!';status.innerHTML='<span style=%22color:#4ade80;%22>Sent! Check Telegram for PDFs.</span>';setTimeout(()=>overlay.remove(),4000);}else{throw new Error('HTTP '+res.status);}}catch(e){btn.disabled=false;btn.innerText='❌ Retry';status.innerHTML=`<span style=%22color:#f87171;%22>Error: ${e.message}</span>`;}};})();">
+      ⚡ Tailor with Job Assistant
+    </a>
+
+    <div class="steps">
+      <strong>Installation Instructions:</strong>
+      <ol>
+        <li>Show your Bookmarks Bar (press <code>Cmd + Shift + B</code> in Chrome/Brave/Edge).</li>
+        <li>Drag the blue <strong>"⚡ Tailor with Job Assistant"</strong> button above directly onto your Bookmarks Bar.</li>
+        <li>Done! Open any job page on LinkedIn, Welcome to the Jungle, or Indeed, and click the bookmark.</li>
+      </ol>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Secrets and Environment
+.env
+credentials/serviceAccountKey.json
+serviceAccountKey.json
+
+# Local n8n data
+.n8n/
+n8n_data/
+
+# Output PDFs & temporary files
+output/
+tmp/
+*.pdf
+
+# Node dependencies
+node_modules/
+npm-debug.log*
+
+# macOS
+.DS_Store
+
+# Run logs (too noisy for git)
+logs/
+
+# Processed jobs cache (personal data, regenerated at runtime)
+data/processed_jobs.json

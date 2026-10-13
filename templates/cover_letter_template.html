@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>{{FULL_NAME}} - Lettre de Motivation</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 20mm 18mm 20mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #111827;
+      background-color: #ffffff;
+      font-size: 10pt;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Sender Info */
+    .sender-block {
+      margin-bottom: 20px;
+      font-size: 9.5pt;
+      line-height: 1.45;
+      color: #374151;
+    }
+
+    .sender-name {
+      font-size: 13pt;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+
+    /* Recipient & Date */
+    .recipient-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 28px;
+    }
+
+    .recipient-block {
+      font-size: 9.5pt;
+      line-height: 1.45;
+      color: #111827;
+    }
+
+    .recipient-company {
+      font-weight: 700;
+    }
+
+    .date-block {
+      font-size: 9.5pt;
+      color: #374151;
+      text-align: right;
+    }
+
+    /* Subject */
+    .subject-block {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 22px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    /* Letter Body */
+    .body-content {
+      color: #1f2937;
+      text-align: justify;
+    }
+
+    .salutation {
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+
+    .body-content p {
+      margin-bottom: 14px;
+      text-indent: 0;
+    }
+
+    /* Sign-off */
+    .sign-off {
+      margin-top: 28px;
+    }
+
+    .signature-name {
+      margin-top: 8px;
+      font-weight: 700;
+      color: #111827;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sender -->
+    <div class="sender-block">
+      <div class="sender-name">{{FULL_NAME}}</div>
+      <div>{{TARGET_HEADLINE}}</div>
+      <div>{{LOCATION}} &bull; {{PHONE}} &bull; {{EMAIL}}</div>
+      <div>{{LINKEDIN_DISPLAY}}</div>
+    </div>
+
+    <!-- Recipient & Date -->
+    <div class="recipient-meta">
+      <div class="recipient-block">
+        <div class="recipient-company">{{COMPANY_NAME}}</div>
+        <div>Service des Ressources Humaines / Recrutement</div>
+        <div>{{COMPANY_LOCATION}}</div>
+      </div>
+      <div class="date-block">
+        {{TODAY_DATE}}
+      </div>
+    </div>
+
+    <!-- Subject -->
+    <div class="subject-block">
+      Objet : Candidature au poste de {{JOB_TITLE}}
+    </div>
+
+    <!-- Letter Body -->
+    <div class="body-content">
+      <div class="salutation">{{SALUTATION}}</div>
+      {{COVER_LETTER_PARAGRAPHS}}
+    </div>
+
+    <!-- Closing -->
+    <div class="sign-off">
+      <p>{{COMPLIMENTARY_CLOSE}}</p>
+      <div class="signature-name">{{FULL_NAME}}</div>
+    </div>
+  </div>
+</body>
+</html>

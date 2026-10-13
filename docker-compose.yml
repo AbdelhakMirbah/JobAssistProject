@@ -1,0 +1,48 @@
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: job_assistant_n8n
+    restart: unless-stopped
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    environment:
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=Europe/Paris
+      - NODE_FUNCTION_ALLOW_BUILTIN=*
+      - NODE_FUNCTION_ALLOW_EXTERNAL=*
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_DEFAULT_BINARY_DATA_MODE=filesystem
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - FIREBASE_DATABASE_URL=${FIREBASE_DATABASE_URL}
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+      - ./templates:/data/templates:ro
+      - ./data:/data/shared:rw
+      - ./credentials:/data/credentials:ro
+      - ./output:/data/output:rw
+    depends_on:
+      - gotenberg
+    networks:
+      - job_assistant_net
+
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    container_name: job_assistant_gotenberg
+    restart: unless-stopped
+    ports:
+      - "${GOTENBERG_PORT:-3000}:3000"
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=false"
+    networks:
+      - job_assistant_net
+
+networks:
+  job_assistant_net:
+    driver: bridge

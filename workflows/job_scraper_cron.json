@@ -1,0 +1,48 @@
+{
+  "name": "Job Assistant - Automated Daily Job Scraper",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "node-schedule",
+      "name": "Schedule: Every 6 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "command": "node scrapers/multi_job_scraper.js"
+      },
+      "id": "node-execute-scraper",
+      "name": "Execute Job Scraper & Telegram Dispatch",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Schedule: Every 6 Hours": {
+      "main": [
+        [
+          {
+            "node": "Execute Job Scraper & Telegram Dispatch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
